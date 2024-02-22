@@ -51,6 +51,9 @@ BitDelayAudioProcessorEditor::BitDelayAudioProcessorEditor(BitDelayAudioProcesso
     wetSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     wetSlider.setRange(0.0f, 0.7f);
 
+    drySlider.addListener(this);
+    wetSlider.addListener(this);
+
     addAndMakeVisible(timeSlider);
     addAndMakeVisible(timeLabel);
     addAndMakeVisible(echoVolSlider);
@@ -111,6 +114,8 @@ void BitDelayAudioProcessorEditor::retrieveParameterValues()
     timeSlider.setValue(parameters[0]->getValue());
     echoVolSlider.setValue(parameters[1]->getValue());
     regenSlider.setValue(parameters[2]->getValue());
+    drySlider.setValue(parameters[3]->getValue());
+    wetSlider.setValue(parameters[4]->getValue());
 }
 
 void BitDelayAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
@@ -121,4 +126,9 @@ void BitDelayAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
         processor.getParameters()[1]->setValue(slider->getValue());
     else if (slider == &regenSlider)
         processor.getParameters()[2]->setValue(slider->getValue());
+    else if (slider == &drySlider)
+        processor.getParameters()[3]->setValue(slider->getValue());
+    else if (slider == &wetSlider)
+        processor.getParameters()[4]->setValue(slider->getValue());
+
 }

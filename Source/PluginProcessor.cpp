@@ -36,9 +36,21 @@ BitDelayAudioProcessor::BitDelayAudioProcessor()
 
     regen = new Echo_Parameter();
     regen->defaultValue = 0.1f;
-    regen->currentValue = 0.1f;;
+    regen->currentValue = 0.7f;;
     regen->name = "Regen";
     addParameter(regen);
+
+    dry = new Echo_Parameter();
+    dry->defaultValue = 0.0f;
+    dry->currentValue = 0.7f;;
+    dry->name = "Dry Volume";
+    addParameter(dry);
+
+    wet = new Echo_Parameter();
+    wet->defaultValue = 0.0f;
+    wet->currentValue = 0.7f;;
+    wet->name = "Wet Volume";
+    addParameter(wet);
 
 }
 
@@ -156,6 +168,10 @@ void BitDelayAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     int bitDepth = 8; //8 Bit delay
     float rateDivide = derivateSampleRate(getSampleRate());
 
+    juce::AudioBuffer<float> wetBuffer;
+    wetBuffer.makeCopyOf(buffer);
+
+
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear(i, 0, buffer.getNumSamples());
@@ -165,7 +181,11 @@ void BitDelayAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        auto* bufferData = buffer.getWritePointer(channel);
+        auto* bufferData = wetBuffer.getWritePointer(channel);
+
+        // setUp Dry Data
+        wetBuffer.applyGainRamp(channel, 0, buffer.getNumSamples(), lastInputGain, volume->getValue());
+        lastInputGain = volume->getValue();
 
         fillBuffer(channel, bufferLength, delayBufferLength, bufferData);
 
@@ -174,13 +194,17 @@ void BitDelayAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
             decimate(bufferData, bitDepth, rateDivide, i);
         }
 
-        // setUp Dry Data
-        buffer.applyGainRamp(channel, 0, buffer.getNumSamples(), lastInputGain, volume->getValue());
-        lastInputGain = volume->getValue();
-
-        readFromBuffer(channel, bufferLength, delayBufferLength, buffer);
+        readFromBuffer(channel, bufferLength, delayBufferLength, wetBuffer);
 
         fillBuffer(channel, bufferLength, delayBufferLength, bufferData);
+
+        wetBuffer.applyGainRamp(channel, 0, bufferLength, lastWetGain, wet->getValue());
+        lastWetGain = wet->getValue();
+
+        buffer.applyGainRamp(channel, 0, bufferLength, lastDryGain, dry->getValue());
+        lastDryGain = dry->getValue();
+
+        buffer.addFrom(channel, 0, bufferData, bufferLength);
     }
 
     mWritePosition += bufferLength;

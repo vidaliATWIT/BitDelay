@@ -58,6 +58,8 @@ class BitDelayAudioProcessor : public juce::AudioProcessor
     Echo_Parameter* time;
     Echo_Parameter* volume;
     Echo_Parameter* regen;
+    Echo_Parameter* dry;
+    Echo_Parameter* wet;
 public:
     //==============================================================================
     BitDelayAudioProcessor();
@@ -106,5 +108,7 @@ private:
     int mWritePosition{ 0 };
     float lastInputGain = 0.0f;
     float lastFeedbackGain = 0.0f;
+    float lastWetGain = 0.0f;
+    float lastDryGain = 0.0f;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BitDelayAudioProcessor)
 };
