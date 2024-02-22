@@ -9,6 +9,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+
 //==============================================================================
 BitDelayAudioProcessorEditor::BitDelayAudioProcessorEditor(BitDelayAudioProcessor& p)
     : AudioProcessorEditor(&p), audioProcessor(p)
@@ -22,7 +23,7 @@ BitDelayAudioProcessorEditor::BitDelayAudioProcessorEditor(BitDelayAudioProcesso
     timeSlider.setSliderStyle(juce::Slider::Rotary);
     timeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false,0,0);
     //timeSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 20);
-    timeSlider.setValue(1.0f);
+    //timeSlider.setValue(1.0f);
 
     //Add listener to timeSlider
     timeSlider.addListener(this);
@@ -31,7 +32,7 @@ BitDelayAudioProcessorEditor::BitDelayAudioProcessorEditor(BitDelayAudioProcesso
     echoVolSlider.setRange(0.0f, 0.7f);
     echoVolSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     echoVolLabel.setText("Input Gain", juce::dontSendNotification);
-    echoVolSlider.setValue(0.7f);
+    //echoVolSlider.setValue(0.7f);
 
     echoVolSlider.addListener(this);
 
@@ -39,9 +40,17 @@ BitDelayAudioProcessorEditor::BitDelayAudioProcessorEditor(BitDelayAudioProcesso
     regenSlider.setRange(0.0f, .7f);
     regenSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     regenLabel.setText("Echo Regen", juce::dontSendNotification);
-    regenSlider.setValue(0.1f);
+    //regenSlider.setValue(0.1f);
 
     regenSlider.addListener(this);
+
+    dryLabel.setText("Dry Volume", juce::dontSendNotification);
+    drySlider.setRange(0.0f, 0.7f);
+    drySlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    
+    wetLabel.setText("Wet Volume", juce::dontSendNotification);
+    wetSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    wetSlider.setRange(0.0f, 0.7f);
 
     addAndMakeVisible(timeSlider);
     addAndMakeVisible(timeLabel);
@@ -49,12 +58,19 @@ BitDelayAudioProcessorEditor::BitDelayAudioProcessorEditor(BitDelayAudioProcesso
     addAndMakeVisible(echoVolLabel);
     addAndMakeVisible(regenSlider);
     addAndMakeVisible(regenLabel);
+    addAndMakeVisible(drySlider);
+    addAndMakeVisible(wetSlider);
+    addAndMakeVisible(dryLabel);
+    addAndMakeVisible(wetLabel);
+
+    setLookAndFeel(&newLookAndFeel);
 
     setSize(400, 300);
 }
 
 BitDelayAudioProcessorEditor::~BitDelayAudioProcessorEditor()
 {
+    setLookAndFeel(nullptr);
 }
 
 //==============================================================================
@@ -81,6 +97,11 @@ void BitDelayAudioProcessorEditor::resized()
     regenLabel.setJustificationType(juce::Justification::centred);
     //regenSlider.setBounds(100, 70, getWidth() - 110, 20);
     regenSlider.setBounds(260, 100, 120, 120);
+    
+    dryLabel.setBounds(40, 245, 80, 20);
+    wetLabel.setBounds(40, 265, 80, 20);
+    drySlider.setBounds(120, 245, 250, 20);
+    wetSlider.setBounds(120, 265, 250, 20);
 }
 
 void BitDelayAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
