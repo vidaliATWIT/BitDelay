@@ -24,7 +24,7 @@ BitDelayAudioProcessor::BitDelayAudioProcessor()
 {
     time = new Echo_Parameter();
     time->defaultValue = 1.0f;
-    time->currentValue = 1.0f;
+    time->currentValue = 1.7f;
     time->name = "Time";
     addParameter(time);
 

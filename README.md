@@ -4,5 +4,5 @@ BitDelay is a vst3 plugin that emulates old hardware digital delay units. It col
 
 # TODO:
   - implement dry and wet sliders
-  - fix parameters resetting on open
-  - finalize GUI 
+  x fix parameters resetting on open
+  x finalize GUI 

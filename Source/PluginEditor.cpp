@@ -23,7 +23,6 @@ BitDelayAudioProcessorEditor::BitDelayAudioProcessorEditor(BitDelayAudioProcesso
     timeSlider.setSliderStyle(juce::Slider::Rotary);
     timeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false,0,0);
     //timeSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 20);
-    //timeSlider.setValue(1.0f);
 
     //Add listener to timeSlider
     timeSlider.addListener(this);
@@ -62,6 +61,8 @@ BitDelayAudioProcessorEditor::BitDelayAudioProcessorEditor(BitDelayAudioProcesso
     addAndMakeVisible(wetSlider);
     addAndMakeVisible(dryLabel);
     addAndMakeVisible(wetLabel);
+
+    retrieveParameterValues();
 
     setLookAndFeel(&newLookAndFeel);
 
@@ -102,6 +103,14 @@ void BitDelayAudioProcessorEditor::resized()
     wetLabel.setBounds(40, 265, 80, 20);
     drySlider.setBounds(120, 245, 250, 20);
     wetSlider.setBounds(120, 265, 250, 20);
+}
+
+void BitDelayAudioProcessorEditor::retrieveParameterValues()
+{
+    auto parameters = processor.getParameters();
+    timeSlider.setValue(parameters[0]->getValue());
+    echoVolSlider.setValue(parameters[1]->getValue());
+    regenSlider.setValue(parameters[2]->getValue());
 }
 
 void BitDelayAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
