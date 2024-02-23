@@ -56,8 +56,8 @@ BitDelayAudioProcessorEditor::BitDelayAudioProcessorEditor(BitDelayAudioProcesso
 
     addAndMakeVisible(timeSlider);
     addAndMakeVisible(timeLabel);
-    addAndMakeVisible(echoVolSlider);
-    addAndMakeVisible(echoVolLabel);
+    //addAndMakeVisible(echoVolSlider);
+    //addAndMakeVisible(echoVolLabel);
     addAndMakeVisible(regenSlider);
     addAndMakeVisible(regenLabel);
     addAndMakeVisible(drySlider);
@@ -90,17 +90,19 @@ void BitDelayAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
 
-    timeLabel.setBounds(20, 60, 120, 20);
+    int x_offset = 40;
+
+    timeLabel.setBounds(20+x_offset, 60, 120, 20);
     timeLabel.setJustificationType(juce::Justification::centred);
-    timeSlider.setBounds(20, 100, 120, 120);
+    timeSlider.setBounds(20+x_offset, 100, 120, 120);
     echoVolLabel.setBounds(140, 60, 120, 20);
     echoVolLabel.setJustificationType(juce::Justification::centred);
     //echoVolSlider.setBounds(100, 40, getWidth() - 110, 20);
     echoVolSlider.setBounds(140, 100, 120, 120);
-    regenLabel.setBounds(260, 60, 120, 20);
+    regenLabel.setBounds(260-x_offset, 60, 120, 20);
     regenLabel.setJustificationType(juce::Justification::centred);
     //regenSlider.setBounds(100, 70, getWidth() - 110, 20);
-    regenSlider.setBounds(260, 100, 120, 120);
+    regenSlider.setBounds(260-x_offset, 100, 120, 120);
     
     dryLabel.setBounds(40, 245, 80, 20);
     wetLabel.setBounds(40, 265, 80, 20);
