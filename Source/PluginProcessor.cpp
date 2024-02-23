@@ -170,6 +170,8 @@ void BitDelayAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
 
     juce::AudioBuffer<float> wetBuffer;
     wetBuffer.makeCopyOf(buffer);
+    juce::AudioBuffer<float> dryBuffer;
+    dryBuffer.makeCopyOf(buffer);
 
 
 
@@ -182,29 +184,26 @@ void BitDelayAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* bufferData = wetBuffer.getWritePointer(channel);
+        auto* dryBufferData = dryBuffer.getWritePointer(channel);
 
-        // setUp Dry Data
-        wetBuffer.applyGainRamp(channel, 0, buffer.getNumSamples(), lastInputGain, volume->getValue());
-        lastInputGain = volume->getValue();
+        //wetBuffer.applyGainRamp(channel, 0, bufferLength, lastInputGain, volume->getValue());
+        //lastInputGain = volume->getValue();
 
         fillBuffer(channel, bufferLength, delayBufferLength, bufferData);
-
+        readFromBuffer(channel, bufferLength, delayBufferLength, wetBuffer);
+        fillBuffer(channel, bufferLength, delayBufferLength, bufferData);
+        juce::FloatVectorOperations::subtract(bufferData, dryBufferData, bufferLength);
         for (int i = 0; i < bufferLength; i++)
         {
             decimate(bufferData, bitDepth, rateDivide, i);
         }
 
-        readFromBuffer(channel, bufferLength, delayBufferLength, wetBuffer);
-
-        fillBuffer(channel, bufferLength, delayBufferLength, bufferData);
-
-        wetBuffer.applyGainRamp(channel, 0, bufferLength, lastWetGain, wet->getValue());
-        lastWetGain = wet->getValue();
-
-        buffer.applyGainRamp(channel, 0, bufferLength, lastDryGain, dry->getValue());
+        //Add dry
+        buffer.copyFromWithRamp(channel, 0, dryBufferData, bufferLength, lastDryGain, dry->getValue());
         lastDryGain = dry->getValue();
-
-        buffer.addFrom(channel, 0, bufferData, bufferLength);
+        //Add wet
+        buffer.addFromWithRamp(channel, 0, bufferData, bufferLength, lastWetGain, wet->getValue());
+        lastWetGain = wet->getValue();
     }
 
     mWritePosition += bufferLength;
@@ -231,6 +230,26 @@ void BitDelayAudioProcessor::decimate(float* channelData, int bitDepth, int rate
     if (rateDivide > 1)
         if (i % rateDivide != 0)
             channelData[i] = channelData[i - i % rateDivide];
+}
+
+void BitDelayAudioProcessor::fillBufferWithRamp(int channel, int bufferLength, int delayBufferLength, float* bufferData)
+{
+    //copy the data from main buffer to delay buffer
+    if (delayBufferLength > bufferLength + mWritePosition)
+    {
+        mDelayBuffer.copyFromWithRamp(channel, mWritePosition, bufferData, bufferLength, lastInputGain, volume->getValue());
+    }
+    else
+    {
+        auto numSamplesToEnd = delayBufferLength - mWritePosition;
+        //copy just alittle bit of whats left to fillout the end
+        mDelayBuffer.copyFromWithRamp(channel, mWritePosition, bufferData, numSamplesToEnd, lastInputGain, volume->getValue());
+
+        auto numSamplesAtStart = bufferLength - numSamplesToEnd;
+        //circle back and add whats left to the beginning again
+        mDelayBuffer.copyFromWithRamp(channel, 0, bufferData + numSamplesToEnd, numSamplesAtStart, lastInputGain, volume->getValue());
+    }
+    lastInputGain = volume->getValue();
 }
 
 void BitDelayAudioProcessor::fillBuffer(int channel, int bufferLength, int delayBufferLength, float* bufferData)

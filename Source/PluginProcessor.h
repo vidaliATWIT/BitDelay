@@ -99,6 +99,7 @@ public:
     void setStateInformation(const void* data, int sizeInBytes) override;
 
     void fillBuffer(int channel, int bufferLength, int delayBufferLength, float* bufferData);
+    void fillBufferWithRamp(int channel, int bufferLength, int delayBufferLength, float* bufferData);
     void readFromBuffer(int channel, int bufferLength, int delayBufferLength, juce::AudioBuffer<float>& buffer);
     void decimate(float* channelData, int bitDepth, int rateDivide, int i);
     float derivateSampleRate(double masterSampleRate);
