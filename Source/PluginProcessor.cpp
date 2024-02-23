@@ -183,6 +183,7 @@ void BitDelayAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
+        auto* originalBufferData = buffer.getWritePointer(channel);
         auto* bufferData = wetBuffer.getWritePointer(channel);
         auto* dryBufferData = dryBuffer.getWritePointer(channel);
 
@@ -190,13 +191,15 @@ void BitDelayAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
         //lastInputGain = volume->getValue();
 
         fillBuffer(channel, bufferLength, delayBufferLength, bufferData);
-        readFromBuffer(channel, bufferLength, delayBufferLength, wetBuffer);
-        fillBuffer(channel, bufferLength, delayBufferLength, bufferData);
-        juce::FloatVectorOperations::subtract(bufferData, dryBufferData, bufferLength);
         for (int i = 0; i < bufferLength; i++)
         {
             decimate(bufferData, bitDepth, rateDivide, i);
+            decimate(originalBufferData, bitDepth, rateDivide, i);
         }
+        readFromBuffer(channel, bufferLength, delayBufferLength, wetBuffer);
+
+        fillBuffer(channel, bufferLength, delayBufferLength, bufferData);
+        juce::FloatVectorOperations::subtract(bufferData, originalBufferData, bufferLength);
 
         //Add dry
         buffer.copyFromWithRamp(channel, 0, dryBufferData, bufferLength, lastDryGain, dry->getValue());
